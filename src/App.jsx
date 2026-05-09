@@ -1,17 +1,21 @@
 import { useState, useEffect } from "react";
 import CoinsCard from "./Components/CoinsCard";
-const API_URL =
-  "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&Order=market_cap_desc&per_page=12&page=1&sparkline=false&sparkline=false";
+const API_URL = import.meta.env.VITE_API_URL;
+import LimitSelecror from "./Components/LimitSelector";
+import FillterCoins from "./Components/FillterCoins";
 
 const App = () => {
   const [Coins, setCoins] = useState([]);
   const [Loading, setLoading] = useState(true);
   const [Error, setError] = useState(null);
-
+  const [limit, setLimit] = useState(10);
+  const [fillter, setFillter] = useState(10);
   useEffect(() => {
     const fetchCoins = async () => {
       try {
-        const res = await fetch(API_URL);
+        const res = await fetch(
+          `${API_URL}&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`,
+        );
         if (!res.ok) {
           throw Error("Failed to fetch data");
         }
@@ -25,18 +29,31 @@ const App = () => {
       }
     };
     fetchCoins();
-  }, [Error]);
+  }, [Error, limit]);
+  const filteredCoins = Coins.filter((coin) => {
+    return (
+      coin.name.toLowerCase().includes(fillter.toLowerCase()) ||
+      coin.symbol.toLowerCase().includes(fillter.toLowerCase())
+    );
+  });
 
   return (
     <div>
       <h1>🚀 Crypto Dash</h1>
       {Loading && <p>Loading...</p>}
       {Error && <div className="error">{Error}</div>}
+      <div className="top-controls">
+        <FillterCoins fillter={fillter} onFillterChange={setFillter} />
+        <LimitSelecror limit={limit} onLimitChange={setLimit} />
+      </div>
+
       {!Loading && !Error && (
         <main className="grid">
-          {Coins.map((coin) => (
-           < CoinsCard key={coin.id}  coin={coin}/>
-          ))}
+          {filteredCoins.length > 0 ? (
+            filteredCoins.map((coin) => <CoinsCard key={coin.id} coin={coin} />)
+          ) : (
+            <p className="noCoins">No coins found.</p>
+          )}
         </main>
       )}
     </div>

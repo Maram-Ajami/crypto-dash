@@ -16,7 +16,7 @@ const CoinsCard = ({ coin }) => {
           >
             {coin.price_change_percentage_24h.toFixed(2)}%
           </p>
-          {/* <p>Market cap: {coin.market_cap.toLocaleString1()}</p> */}
+          <p>Market cap: {coin.market_cap.toLocaleString()}</p>
         </div>
       </div>
     </div>
